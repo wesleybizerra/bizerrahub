@@ -86,7 +86,7 @@ export default function LeonidaWaitlist() {
             </div>
 
             <h1 className="font-display text-5xl md:text-7xl lg:text-8xl text-white uppercase tracking-tighter leading-[0.9] mb-6">
-              A Nova Geração <br /> do <span className="text-transparent bg-clip-text bg-brand-gradient">Roleplay</span> Chegou.
+              A Nova Geração <br /> do <span className="brand-gradient-text">Roleplay</span> Chegou.
             </h1>
             <p className="text-xl text-text-muted font-medium max-w-2xl mx-auto">
               Gráficos fotorrealistas, física reformulada, e um estado inteiro para dominar. Os servidores de comunidade do GTA 6 vão redefinir o que significa jogar RP.
