@@ -1,48 +1,78 @@
 import { Layout } from "@/components/Layout";
 import { Link, useParams } from "wouter";
 import { useServers } from "@/hooks/useServers";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import { useAuth } from "@/contexts/AuthContext";
-import { ShieldCheck, Star, Users, ExternalLink, MessageSquare, AlertCircle } from "lucide-react";
+import { ShieldCheck, Star, Users, ExternalLink, MessageSquare, AlertCircle, Lock } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 export default function ServerPage() {
   const { slug } = useParams();
-  const { effectiveRole } = useAuth();
+  const { effectiveRole, currentUser } = useAuth();
   const { toast } = useToast();
-
-  const { servers } = useServers();
-  const server = servers.find(s => s.slug === slug);
-  if (!server) return <Layout><div className="max-w-4xl mx-auto px-4 py-24 text-center text-text-muted">Carregando ou servidor não encontrado...</div></Layout>;
-  const canReview = effectiveRole !== "visitor";
+  const { servers, loading } = useServers();
 
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
 
-  const { currentUser } = useAuth();
+  const canReview = effectiveRole !== "visitor";
+  const server = servers.find(s => s.slug === slug);
 
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!canReview || !currentUser) return;
+    if (!canReview || !currentUser || !server) return;
 
-    await addDoc(collection(db, "reviews"), {
-      serverSlug: server.slug,
-      serverName: server.name,
-      userName: currentUser.name ?? currentUser.email,
-      rating,
-      comment,
-      status: "pending",
-      createdAt: serverTimestamp(),
-    });
+    try {
+      await addDoc(collection(db, "reviews"), {
+        serverSlug: server.slug,
+        serverName: server.name,
+        userName: currentUser.name ?? currentUser.email,
+        rating,
+        comment,
+        status: "pending",
+        createdAt: serverTimestamp(),
+      });
 
-    toast({
-      title: "Avaliação enviada!",
-      description: "Sua avaliação foi enviada para moderação. +20 XP",
-    });
-    setComment("");
+      toast({
+        title: "Avaliação enviada!",
+        description: "Sua avaliação foi enviada para moderação.",
+      });
+      setComment("");
+    } catch {
+      toast({
+        title: "Erro ao enviar avaliação",
+        description: "Tente novamente em instantes.",
+        variant: "destructive",
+      });
+    }
   };
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="max-w-4xl mx-auto px-4 py-24 text-center text-text-muted">
+          Carregando servidor...
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!server) {
+    return (
+      <Layout>
+        <div className="max-w-4xl mx-auto px-4 py-24 text-center">
+          <AlertCircle className="w-12 h-12 text-text-muted mx-auto mb-4 opacity-50" />
+          <h1 className="font-display text-2xl text-white uppercase mb-2">Servidor não encontrado</h1>
+          <p className="text-text-muted mb-8">Este servidor pode ter sido removido do diretório.</p>
+          <Link href="/servidores" className="btn-primary px-6 py-3 rounded-xl inline-block font-bold">
+            Voltar para o Diretório
+          </Link>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -100,20 +130,15 @@ export default function ServerPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-12 grid grid-cols-1 lg:grid-cols-3 gap-12">
-        {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 py-16 grid grid-cols-1 lg:grid-cols-3 gap-12">
         <div className="lg:col-span-2 space-y-12">
           <section>
-            <h2 className="font-display text-2xl text-white uppercase mb-4">Sobre o Servidor</h2>
-            <div className="prose prose-invert max-w-none text-text-muted font-medium leading-relaxed">
-              <p>{server.description}</p>
-            </div>
+            <h2 className="font-display text-2xl text-white uppercase mb-6">Sobre o Servidor</h2>
+            <p className="text-text-muted leading-relaxed text-lg">{server.description}</p>
           </section>
 
           <section>
-            <h2 className="font-display text-2xl text-white uppercase mb-4 flex items-center gap-2">
-              <AlertCircle className="text-secondary" /> Como Entrar
-            </h2>
+            <h2 className="font-display text-2xl text-white uppercase mb-6">Como Entrar</h2>
             <div className="leonida-card p-6">
               <div className="space-y-4">
                 {server.howToEnter?.split('\n').map((step, idx) => (
@@ -174,26 +199,6 @@ export default function ServerPage() {
                 </div>
               )}
             </div>
-
-            {/* Mock Reviews List */}
-            <div className="space-y-4">
-              {[1, 2, 3].map((r) => (
-                <div key={r} className="bg-surface border border-white/5 rounded-xl p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <span className="font-bold text-white block">Jogador Anonimo {r}</span>
-                      <span className="text-xs text-text-muted">Há {r} dias</span>
-                    </div>
-                    <div className="flex">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} size={14} className={i < 4 ? "fill-accent text-accent" : "text-white/20"} />
-                      ))}
-                    </div>
-                  </div>
-                  <p className="text-text-muted text-sm">Ótimo servidor, a staff é muito prestativa e a economia é bem balanceada. Recomendo muito para quem quer um RP sério de verdade.</p>
-                </div>
-              ))}
-            </div>
           </section>
         </div>
 
@@ -226,7 +231,7 @@ export default function ServerPage() {
           <div className="leonida-card p-6">
             <h3 className="font-display text-xl text-white uppercase mb-4 border-b border-white/10 pb-4">Badges Oficiais</h3>
             <div className="flex flex-wrap gap-2">
-              {server.badges.map(badge => (
+              {(server.badges || []).map(badge => (
                 <span key={badge} className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-sm text-text-muted font-bold">
                   {badge}
                 </span>
