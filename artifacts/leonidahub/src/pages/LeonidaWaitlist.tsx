@@ -13,7 +13,9 @@ export default function LeonidaWaitlist() {
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
 
-  const targetDate = new Date(settings?.waitlistTargetDate || "2026-11-19T00:00:00").getTime();
+  const targetDateString = settings?.waitlistTargetDate || "2026-11-19T00:00:00";
+  const parsedTarget = new Date(targetDateString).getTime();
+  const targetDate = isNaN(parsedTarget) ? new Date("2026-11-19T00:00:00").getTime() : parsedTarget;
 
   function calcTL() {
     const diff = targetDate - new Date().getTime();
@@ -31,7 +33,7 @@ export default function LeonidaWaitlist() {
   useEffect(() => {
     const interval = setInterval(() => setTimeLeft(calcTL()), 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [targetDate]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -40,20 +42,30 @@ export default function LeonidaWaitlist() {
     const name = formData.get("name") as string;
 
     if (!email) return;
+
     setIsSaving(true);
     try {
-      await addDoc(collection(db, "waitlist"), { email, name, createdAt: serverTimestamp() });
+      await addDoc(collection(db, "waitlist"), {
+        email,
+        name,
+        createdAt: serverTimestamp(),
+      });
       toast({
         title: "Você está na lista oficial!",
         description: "Te avisaremos assim que os primeiros servidores anunciarem vagas.",
       });
       (e.target as HTMLFormElement).reset();
-    } catch {
-      toast({ title: "Erro ao entrar na lista", variant: "destructive" });
+    } catch (err) {
+      toast({
+        title: "Erro ao entrar na lista",
+        description: "Tente novamente em instantes.",
+        variant: "destructive",
+      });
     } finally {
       setIsSaving(false);
     }
   };
+
   return (
     <Layout>
       <div className="bg-[#0B0B14] min-h-screen relative overflow-hidden">
@@ -122,7 +134,7 @@ export default function LeonidaWaitlist() {
                 disabled={isSaving}
                 className="btn-primary w-full rounded-xl py-4 text-lg font-bold mt-2"
               >
-                {joinWaitlist.isPending ? "Processando..." : "Entrar na Lista de Espera"}
+                {isSaving ? "Processando..." : "Entrar na Lista de Espera"}
               </button>
             </form>
 
