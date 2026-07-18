@@ -2,12 +2,15 @@ import { Layout } from "@/components/Layout";
 import { Check, Star, Mail } from "lucide-react";
 import { Link } from "wouter";
 
+const WHATSAPP_SUBSCRIBE_LINK =
+  "https://api.whatsapp.com/send/?phone=71981574664&text&type=phone_number&app_absent=0";
+
 export default function Plans() {
   const plans = [
     {
       id: "cidadao",
       name: "Cidadão",
-      price: "29,90",
+      price: "10,00",
       description: "Para jogadores que querem explorar e participar ativamente.",
       popular: false,
       color: "border-white/10",
@@ -23,7 +26,7 @@ export default function Plans() {
     {
       id: "vip",
       name: "VIP",
-      price: "199,90",
+      price: "20,00",
       description: "Acesso premium para quem leva o RP a sério.",
       popular: true,
       color: "border-primary shadow-[0_0_30px_rgba(255,46,136,0.2)]",
@@ -39,7 +42,7 @@ export default function Plans() {
     {
       id: "fundador",
       name: "Fundador",
-      price: "399,90",
+      price: "30,00",
       description: "Para donos de servidores e patrocinadores do hub.",
       popular: false,
       color: "border-white/10",
@@ -75,44 +78,53 @@ export default function Plans() {
 
         {/* Plan Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-24">
-          {plans.map((plan) => (
-            <div 
-              key={plan.id} 
-              className={`bg-[#14141F] border rounded-3xl p-8 flex flex-col relative transition-transform hover:-translate-y-2 ${plan.color}`}
-            >
-              {plan.popular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-brand-gradient text-[#0B0B14] font-bold text-xs uppercase tracking-widest px-4 py-1.5 rounded-full">
-                  Mais Popular
+          {plans.map((plan) => {
+            const ctaClass = plan.popular
+              ? "w-full py-4 rounded-xl font-bold mb-8 transition-colors text-center block btn-primary text-lg"
+              : "w-full py-4 rounded-xl font-bold mb-8 transition-colors text-center block bg-white/5 text-white hover:bg-white/10 border border-white/10";
+
+            return (
+              <div 
+                key={plan.id} 
+                className={`bg-[#14141F] border rounded-3xl p-8 flex flex-col relative transition-transform hover:-translate-y-2 ${plan.color}`}
+              >
+                {plan.popular && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-brand-gradient text-[#0B0B14] font-bold text-xs uppercase tracking-widest px-4 py-1.5 rounded-full">
+                    Mais Popular
+                  </div>
+                )}
+                
+                <h3 className="font-display text-2xl text-white mb-2">{plan.name}</h3>
+                <p className="text-text-muted text-sm mb-6 h-10">{plan.description}</p>
+                
+                <div className="flex items-end gap-1 mb-8">
+                  <span className="text-white font-display text-4xl">R$ {plan.price}</span>
+                  <span className="text-text-muted font-bold mb-1">/mês</span>
                 </div>
-              )}
-              
-              <h3 className="font-display text-2xl text-white mb-2">{plan.name}</h3>
-              <p className="text-text-muted text-sm mb-6 h-10">{plan.description}</p>
-              
-              <div className="flex items-end gap-1 mb-8">
-                <span className="text-white font-display text-4xl">R$ {plan.price}</span>
-                <span className="text-text-muted font-bold mb-1">/mês</span>
+                
+                <a
+                  href={WHATSAPP_SUBSCRIBE_LINK}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={ctaClass}
+                >
+                  Assinar {plan.name}
+                </a>
+                
+                <div className="flex-1">
+                  <h4 className="text-xs font-bold text-white uppercase tracking-widest mb-4">O que inclui:</h4>
+                  <ul className="space-y-4">
+                    {plan.features.map((feature, idx) => (
+                      <li key={idx} className="flex items-start gap-3">
+                        <Check className="w-5 h-5 text-secondary shrink-0" />
+                        <span className="text-sm text-text-muted">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
-              
-              <button className={`w-full py-4 rounded-xl font-bold mb-8 transition-colors ${
-                plan.popular ? 'btn-primary text-lg' : 'bg-white/5 text-white hover:bg-white/10 border border-white/10'
-              }`}>
-                Assinar {plan.name}
-              </button>
-              
-              <div className="flex-1">
-                <h4 className="text-xs font-bold text-white uppercase tracking-widest mb-4">O que inclui:</h4>
-                <ul className="space-y-4">
-                  {plan.features.map((feature, idx) => (
-                    <li key={idx} className="flex items-start gap-3">
-                      <Check className="w-5 h-5 text-secondary shrink-0" />
-                      <span className="text-sm text-text-muted">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* CTA Footer */}

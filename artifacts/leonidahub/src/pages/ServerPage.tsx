@@ -1,6 +1,8 @@
 import { Layout } from "@/components/Layout";
 import { Link, useParams } from "wouter";
-import { SEED_SERVERS } from "@/data/seed";
+import { useServers } from "@/hooks/useServers";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import { useAuth } from "@/contexts/AuthContext";
 import { ShieldCheck, Star, Users, ExternalLink, MessageSquare, AlertCircle } from "lucide-react";
 import { useState } from "react";
@@ -10,20 +12,34 @@ export default function ServerPage() {
   const { slug } = useParams();
   const { effectiveRole } = useAuth();
   const { toast } = useToast();
-  
-  const server = SEED_SERVERS.find(s => s.slug === slug) || SEED_SERVERS[0];
+
+  const { servers } = useServers();
+  const server = servers.find(s => s.slug === slug);
+  if (!server) return <Layout><div className="max-w-4xl mx-auto px-4 py-24 text-center text-text-muted">Carregando ou servidor não encontrado...</div></Layout>;
   const canReview = effectiveRole !== "visitor";
-  
+
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
 
-  const handleReviewSubmit = (e: React.FormEvent) => {
+  const { currentUser } = useAuth();
+
+  const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!canReview) return;
-    
+    if (!canReview || !currentUser) return;
+
+    await addDoc(collection(db, "reviews"), {
+      serverSlug: server.slug,
+      serverName: server.name,
+      userName: currentUser.name ?? currentUser.email,
+      rating,
+      comment,
+      status: "pending",
+      createdAt: serverTimestamp(),
+    });
+
     toast({
       title: "Avaliação enviada!",
-      description: "Sua avaliação foi enviada para moderação.",
+      description: "Sua avaliação foi enviada para moderação. +20 XP",
     });
     setComment("");
   };
@@ -38,7 +54,7 @@ export default function ServerPage() {
             <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl bg-[#0B0B14] border border-white/10 flex items-center justify-center font-display text-4xl md:text-5xl text-primary shadow-[0_0_30px_rgba(255,46,136,0.3)] shrink-0">
               #{server.rank}
             </div>
-            
+
             <div className="flex-1">
               <div className="flex flex-wrap items-center gap-3 mb-2">
                 <span className="px-3 py-1 rounded bg-white/10 text-white text-xs font-bold uppercase tracking-widest">
@@ -50,11 +66,11 @@ export default function ServerPage() {
                   </span>
                 )}
               </div>
-              
+
               <h1 className="font-display text-4xl md:text-6xl text-white uppercase tracking-tight mb-4 flex items-center gap-3">
                 {server.name}
               </h1>
-              
+
               <div className="flex flex-wrap items-center gap-6 text-sm">
                 <div className="flex items-center gap-2">
                   <div className="flex items-center">
@@ -71,7 +87,7 @@ export default function ServerPage() {
                 </div>
               </div>
             </div>
-            
+
             <div className="w-full md:w-auto flex flex-col gap-3 shrink-0">
               <a href={server.officialLink} target="_blank" rel="noreferrer" className="btn-primary w-full px-8 py-4 rounded-xl text-center font-bold text-lg flex items-center justify-center gap-2">
                 Entrar no Discord <ExternalLink size={20} />
@@ -118,7 +134,7 @@ export default function ServerPage() {
                 <MessageSquare className="text-primary" /> Avaliações da Comunidade
               </h2>
             </div>
-            
+
             {/* Review Form */}
             <div className="leonida-card p-6 mb-8">
               {canReview ? (
@@ -126,9 +142,9 @@ export default function ServerPage() {
                   <h3 className="text-white font-bold mb-4">Deixe sua avaliação</h3>
                   <div className="flex gap-2 mb-4">
                     {[1, 2, 3, 4, 5].map((star) => (
-                      <button 
-                        type="button" 
-                        key={star} 
+                      <button
+                        type="button"
+                        key={star}
                         onClick={() => setRating(star)}
                         className="text-2xl focus:outline-none"
                       >
@@ -136,7 +152,7 @@ export default function ServerPage() {
                       </button>
                     ))}
                   </div>
-                  <textarea 
+                  <textarea
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
                     placeholder="Conte como é sua experiência neste servidor..."

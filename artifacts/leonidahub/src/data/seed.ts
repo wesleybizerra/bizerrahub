@@ -74,7 +74,6 @@ export const SEED_SERVERS = [
 ];
 
 export const MOCK_USERS = [
-  { id: 1, email: "wesleybizerra1@gmail.com", name: "Admin Wesley", role: UserRole.admin, plan: UserPlan.fundador },
   { id: 2, email: "cidadao_test@bizerrahub.com", name: "Cidadão Teste", role: UserRole.cidadao, plan: UserPlan.cidadao },
   { id: 3, email: "vip_test@bizerrahub.com", name: "VIP Teste", role: UserRole.vip, plan: UserPlan.vip },
   { id: 4, email: "fundador_test@bizerrahub.com", name: "Fundador Teste", role: UserRole.fundador, plan: UserPlan.fundador },
