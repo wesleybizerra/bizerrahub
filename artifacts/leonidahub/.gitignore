@@ -1,2 +1,8 @@
 node_modules/
+artifacts/leonidahub/node_modules/
+
 .env.local
+artifacts/leonidahub/.env.local
+
+dist/
+build/
