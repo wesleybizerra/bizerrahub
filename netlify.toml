@@ -1,0 +1,13 @@
+[build]
+  command = "pnpm --filter @workspace/leonidahub run build"
+  publish = "artifacts/leonidahub/dist/public"
+
+[build.environment]
+  NODE_VERSION = "24"
+  PNPM_VERSION = "10.26.1"
+  BASE_PATH = "/"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
