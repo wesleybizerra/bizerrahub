@@ -1,11 +1,20 @@
+import { useEffect } from "react";
 import { Layout } from "@/components/Layout";
-import { Check, Star, Mail } from "lucide-react";
+import { Check, Star, Mail, Ticket, Copy } from "lucide-react";
 import { Link } from "wouter";
+import { useGamification } from "@/contexts/GamificationContext";
 
 const WHATSAPP_SUBSCRIBE_LINK =
   "https://api.whatsapp.com/send/?phone=71981574664&text&type=phone_number&app_absent=0";
 
 export default function Plans() {
+  const { registerPlanView, registerPurchaseClick, discountCode, discountPercent, level, points } = useGamification();
+
+  useEffect(() => {
+    registerPlanView();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const plans = [
     {
       id: "cidadao",
@@ -67,6 +76,27 @@ export default function Plans() {
           <p className="text-xl text-text-muted max-w-2xl mx-auto">
             Desbloqueie todo o potencial do diretório, garanta vantagens para aprovações de allowlist e destaque seu perfil na comunidade.
           </p>
+
+          <p className="mt-4 text-xs text-text-muted uppercase tracking-widest">
+            Você está no nível {level} · {points} pontos acumulados
+          </p>
+
+          {discountCode && (
+            <div className="mt-6 inline-flex items-center gap-3 bg-[#14141F] border border-primary/40 rounded-2xl px-5 py-3">
+              <Ticket size={18} className="text-primary" />
+              <span className="text-sm text-white">
+                Cupom de fidelidade: <span className="font-display text-primary tracking-widest">{discountCode}</span>{" "}
+                <span className="text-text-muted">({discountPercent}% OFF, informe ao assinar)</span>
+              </span>
+              <button
+                onClick={() => navigator.clipboard?.writeText(discountCode)}
+                className="text-text-muted hover:text-white"
+                title="Copiar cupom"
+              >
+                <Copy size={16} />
+              </button>
+            </div>
+          )}
           
           <div className="mt-8 inline-flex bg-[#14141F] border border-white/10 rounded-full p-1">
             <button className="px-6 py-2 rounded-full bg-white/10 text-white font-bold text-sm">Mensal</button>
@@ -102,10 +132,11 @@ export default function Plans() {
                   <span className="text-text-muted font-bold mb-1">/mês</span>
                 </div>
                 
-                <a
+                
                   href={WHATSAPP_SUBSCRIBE_LINK}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => registerPurchaseClick(plan.name)}
                   className={ctaClass}
                 >
                   Assinar {plan.name}
