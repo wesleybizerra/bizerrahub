@@ -9,10 +9,11 @@ export function Navbar() {
   const { currentUser, effectiveRole, viewAs } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const links = [
+const links = [
     { href: "/servidores", label: "Servidores" },
     { href: "/guia", label: "Guia" },
     { href: "/leonida", label: "GTA 6" },
+    { href: "/noticias", label: "Notícias" },
     { href: "/planos", label: "Planos" },
     { href: "/sobre", label: "Sobre" },
   ];
