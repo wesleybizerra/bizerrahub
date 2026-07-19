@@ -4,6 +4,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
 import { Route, Switch, Router as WouterRouter } from 'wouter';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { GamificationProvider } from '@/contexts/GamificationContext';
 
 import Home from '@/pages/Home';
 import ServerDirectory from '@/pages/ServerDirectory';
@@ -14,6 +15,7 @@ import Plans from '@/pages/Plans';
 import AdminLogin from '@/pages/AdminLogin';
 import AdminPanel from '@/pages/AdminPanel';
 import About from '@/pages/About';
+import News from '@/pages/News';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,6 +35,7 @@ function Router() {
       <Route path="/guia" component={Guide} />
       <Route path="/leonida" component={LeonidaWaitlist} />
       <Route path="/planos" component={Plans} />
+      <Route path="/noticias" component={News} />
       <Route path="/admin/login" component={AdminLogin} />
       <Route path="/admin" component={AdminPanel} />
       <Route path="/sobre" component={About} />
@@ -50,12 +53,14 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <TooltipProvider>
-          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
-            <Router />
-          </WouterRouter>
-          <Toaster />
-        </TooltipProvider>
+        <GamificationProvider>
+          <TooltipProvider>
+            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
+              <Router />
+            </WouterRouter>
+            <Toaster />
+          </TooltipProvider>
+        </GamificationProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
