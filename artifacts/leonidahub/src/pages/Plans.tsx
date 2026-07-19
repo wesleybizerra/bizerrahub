@@ -131,8 +131,7 @@ export default function Plans() {
                   <span className="text-white font-display text-4xl">R$ {plan.price}</span>
                   <span className="text-text-muted font-bold mb-1">/mês</span>
                 </div>
-                
-                
+                <a
                   href={WHATSAPP_SUBSCRIBE_LINK}
                   target="_blank"
                   rel="noopener noreferrer"
