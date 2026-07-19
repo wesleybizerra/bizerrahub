@@ -1,5 +1,4 @@
 import { Layout } from "@/components/Layout";
-import { Github, Twitter, MessageCircle } from "lucide-react";
 
 export default function About() {
   return (
@@ -51,18 +50,6 @@ export default function About() {
               Enviar Mensagem
             </button>
           </form>
-
-          <div className="flex gap-4 items-center justify-center pt-8 border-t border-white/10">
-            <a href="#" className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-white hover:bg-primary hover:text-[#0B0B14] transition-colors">
-              <Twitter size={20} />
-            </a>
-            <a href="#" className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-white hover:bg-primary hover:text-[#0B0B14] transition-colors">
-              <MessageCircle size={20} />
-            </a>
-            <a href="#" className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-white hover:bg-primary hover:text-[#0B0B14] transition-colors">
-              <Github size={20} />
-            </a>
-          </div>
         </div>
       </div>
     </Layout>
